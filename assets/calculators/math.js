@@ -1,4 +1,4 @@
-/* Standalone arithmetic for the two public tools. All money outputs are integer cents. */
+/* Standalone arithmetic for the public tools. All monetary values use integer cents. */
 (() => {
   'use strict';
   class InputError extends Error {
@@ -57,12 +57,13 @@
   }
 
   function money(cents, currency) {
+    if (cents < 0n) return '−' + money(-cents, currency);
     const formatter = new Intl.NumberFormat(currency === 'CAD' ? 'en-CA' : 'en-US', {style:'currency', currency});
     return formatter.formatToParts(cents / 100n).map(part => part.type === 'fraction'
       ? (cents % 100n).toString().padStart(2, '0') : part.value).join('');
   }
 
-  const api = { estimate, bakery, money, InputError };
+  const api = { estimate, bakery, money, fixed, ceiling, InputError };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else globalThis.ProCalculators = api;
 })();
